@@ -1,1 +1,27 @@
-loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
+local STEAL_AN_EGG = "https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"
+local byGameId = {
+    [10563114921] = STEAL_AN_EGG,
+}
+local byPlaceId = {
+    [107778070777162] = STEAL_AN_EGG,
+}
+local gameId = game.GameId
+while gameId == 0 and game.PlaceId == 0 do
+    task.wait()
+    gameId = game.GameId
+end
+local url = byGameId[gameId] or byPlaceId[game.PlaceId]
+if not url then
+    warn("[Figgy Hub] This game is not supported")
+    return
+end
+for _ = 1, 3 do
+    local ok, source = pcall(game.HttpGet, game, url, true)
+    local chunk = ok and type(source) == "string" and source ~= "" and loadstring(source)
+    if chunk then
+        chunk()
+        return
+    end
+    task.wait(0.5)
+end
+warn("[Figgy Hub] Could not reach the script. Please try again.")
